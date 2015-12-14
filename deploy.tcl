@@ -21,6 +21,7 @@ set ::nettcl::deploy::MAX_SERIES_IN_RUN 10
 set ::nettcl::deploy::EXECUTABLE "/home/student/native_bin/nettcl.condor"
 set ::nettcl::deploy::RUN_SCRIPT_FILE_NAME "../run.nettcl"
 set ::nettcl::deploy::SEPARATOR "/"
+set ::nettcl::deploy::UNIVERSE "standard"
 
 set ::nettcl::deploy::OUT_FILE_NAME "tmp.out"
 set ::nettcl::deploy::ERROR_FILE_NAME "tmp.err"
@@ -32,15 +33,16 @@ set ::nettcl::deploy::CONDOR_SUBMIT_FILE_NAME "calc.cmd"
 set ::nettcl::deploy::CONDOR_RANK "Speed/(1.+LoadAvg)/((49.+VirtualMachineId)/50)/((49.+TotalLoadAvg)/50)"
 
 set ::nettcl::deploy::CONDOR_SUBMIT_FILE_TEMPLATE {
-Executable = $EXECUTABLE
-Arguments = $arguments
-Rank = $CONDOR_RANK
-Output = $OUT_FILE_NAME
-Error = $ERROR_FILE_NAME
-Log = $LOG_FILE_NAME
+Universe     = $UNIVERSE
+Executable   = $EXECUTABLE
+Arguments    = $arguments
+Rank         = $CONDOR_RANK
+Output       = $OUT_FILE_NAME
+Error        = $ERROR_FILE_NAME
+Log          = $LOG_FILE_NAME
 Notification = Never
-Initialdir = $seriesDir
-Getenv = true
+Initialdir   = $seriesDir
+Getenv       = true
 Queue
 }
 
@@ -190,6 +192,7 @@ proc ::nettcl::deploy::makeCondorSubmitFile { seriesNum seriesDir } {
   global ::nettcl::deploy::SEPARATOR
   global ::nettcl::deploy::SERIES_SUBMIT_EXECUTABLE
   global ::nettcl::deploy::SERIES_SUBMIT_BACKGROUNG
+  global ::nettcl::deploy::UNIVERSE
 
   set arguments "${RUN_SCRIPT_FILE_NAME} [makeArguments $seriesNum]"
   eval "set __s \"[string trim $CONDOR_SUBMIT_FILE_TEMPLATE]\""
