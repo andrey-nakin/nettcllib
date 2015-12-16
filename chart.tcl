@@ -81,6 +81,7 @@ set PARAM_NAME_SUBSTITUTION(epsilon) "{/Symbol e}"
 set PARAM_NAME_SUBSTITUTION(xSize) "L_x"
 set PARAM_NAME_SUBSTITUTION(ySize) "L_y"
 set PARAM_NAME_SUBSTITUTION(zSize) "L_z"
+set PARAM_NAME_SUBSTITUTION(eta) "{/Symbol h}"
 
 ###############################################################################
 # internal variables
@@ -112,6 +113,29 @@ proc clear_temp {} {
   }
   
   set TEMP_FILES {}
+}
+
+###############################################################################
+# Checks whether directory name given is run directory
+# Parameters:
+#   name - name of the directory to test
+# Return:
+#   true - name is the name of data run directory 
+###############################################################################
+proc is_run_dir { name } {
+  return [expr [string match "run*" $name] && [file isdirectory $name]] 
+}
+
+###############################################################################
+# Returns list of names of data run directories within given run
+# Series are sorted by their numbers
+# Parameters:
+#   expdir - name of the experiment directory
+# Return:
+#   list of the paths to run directories 
+###############################################################################
+proc find_runs { expdir } {
+  return [lsort [::fileutil::find $expdir is_run_dir]]
 }
 
 ###############################################################################
@@ -779,10 +803,11 @@ proc description_to_string { dir {paramNames {}} {omittedParamNames {}} } {
 # Creates name of the chart file depending on name of the specified directory
 # Parameters:
 #   dirpath - path to the directory
+#   suffix - optional suffix (part after main name prior to extension)
 # Return:
 #   recommended chart file name
 ###############################################################################
-proc auto_chart_name { dirpath } {
+proc auto_chart_name { dirpath { suffix ""} } {
   global ::nettcl::chart::TERMINAL
 
   set curdir [pwd]
@@ -823,7 +848,7 @@ proc auto_chart_name { dirpath } {
     }
   }
 
-  return "charts$res.$tt"
+    return "charts$res${suffix}.${tt}"
 }
 
 ###############################################################################

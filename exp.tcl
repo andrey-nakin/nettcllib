@@ -290,6 +290,36 @@ proc simpleSuperconductingScreen2d { network Lx averageZ { epsilon 0 } } {
 }
 
 ###############################################################################
+# Assigns currents to 2D-grid to emulate 2-way magnetic field 
+#   with superconducting screen attched to 4 corners of grid
+# Arguments:
+#   network - network to modify
+#   averageZ - average current required 
+###############################################################################
+proc simpleDiagonalSuperconductingScreen { network averageZ } {
+    # total number of contacts
+    set n [nettcl2d::network get $network num-of-contacts]
+
+    # total numer or boundary contacts
+    set nb [llength [nettcl2d::network get $network contacts { left | right | top | bottom }]]
+
+    # current to inject
+    set z [expr {$n / $nb * $averageZ}]
+puts "n = $n, nb = $nb, z = $z"
+
+    nettcl2d::foreachContact c $network {} {
+	nettcl2d::contact set $c z 0.0
+    }
+
+    nettcl2d::foreachContact c $network { left | bottom } {
+	nettcl2d::contact set $c z -$z
+    }
+    nettcl2d::foreachContact c $network { right | top } {
+	nettcl2d::contact set $c z $z
+    }
+}
+
+###############################################################################
 # Private procedures
 ###############################################################################
 
