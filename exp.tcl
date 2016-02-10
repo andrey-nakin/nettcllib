@@ -305,7 +305,6 @@ proc simpleDiagonalSuperconductingScreen { network averageZ } {
 
     # current to inject
     set z [expr {$n / $nb * $averageZ}]
-puts "n = $n, nb = $nb, z = $z"
 
     nettcl2d::foreachContact c $network {} {
 	nettcl2d::contact set $c z 0.0
@@ -315,6 +314,34 @@ puts "n = $n, nb = $nb, z = $z"
 	nettcl2d::contact set $c z -$z
     }
     nettcl2d::foreachContact c $network { right | top } {
+	nettcl2d::contact set $c z $z
+    }
+}
+
+###############################################################################
+# Assigns currents to 2D-grid to emulate constant magnetic field 
+# Arguments:
+#   network - network to modify
+#   averageZ - average current required 
+###############################################################################
+proc simpleConstantField { network averageZ } {
+    # total number of contacts
+    set n [nettcl2d::network get $network num-of-contacts]
+
+    # total numer or boundary contacts
+    set nb [llength [nettcl2d::network get $network contacts { left | right | top | bottom }]]
+
+    # current to inject
+    set z [expr {$n / $nb * $averageZ}]
+
+    nettcl2d::foreachContact c $network {} {
+	nettcl2d::contact set $c z 0.0
+    }
+
+    nettcl2d::foreachContact c $network { right | bottom } {
+	nettcl2d::contact set $c z -$z
+    }
+    nettcl2d::foreachContact c $network { left | top } {
 	nettcl2d::contact set $c z $z
     }
 }
