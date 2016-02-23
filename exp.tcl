@@ -6,7 +6,7 @@
 # version 1.0:   initial implementation, spring 2008
 ###############################################################################
 
-package provide nettcl::exp 1.1.0
+package provide nettcl::exp 1.2.0
 
 package require math::statistics
 package require cmdline
@@ -295,8 +295,9 @@ proc simpleSuperconductingScreen2d { network Lx averageZ { epsilon 0 } } {
 # Arguments:
 #   network - network to modify
 #   averageZ - average current required 
+#   kappa - Z_x / Z_y
 ###############################################################################
-proc simpleDiagonalSuperconductingScreen { network averageZ } {
+proc simpleDiagonalSuperconductingScreen { network averageZ { kappa 1.0 } } {
     # total number of contacts
     set n [nettcl2d::network get $network num-of-contacts]
 
@@ -305,16 +306,24 @@ proc simpleDiagonalSuperconductingScreen { network averageZ } {
 
     # current to inject
     set z [expr {$n / $nb * $averageZ}]
+    set zy [expr { 2 * $z / ($kappa + 1.0) }]
+    set zx [expr { $kappa* $zy }]
 
     nettcl2d::foreachContact c $network {} {
 	nettcl2d::contact set $c z 0.0
     }
 
-    nettcl2d::foreachContact c $network { left | bottom } {
-	nettcl2d::contact set $c z -$z
+    nettcl2d::foreachContact c $network { left } {
+	nettcl2d::contact set $c z -$zy
     }
-    nettcl2d::foreachContact c $network { right | top } {
-	nettcl2d::contact set $c z $z
+    nettcl2d::foreachContact c $network { right } {
+	nettcl2d::contact set $c z $zy
+    }
+    nettcl2d::foreachContact c $network { bottom } {
+	nettcl2d::contact set $c z -$zx
+    }
+    nettcl2d::foreachContact c $network { top } {
+	nettcl2d::contact set $c z $zx
     }
 }
 
